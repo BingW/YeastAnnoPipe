@@ -1,6 +1,7 @@
 *.py[co]
 *.swp
 temp/*
+AUGUTUS/*
 
 # Packages
 *.egg
