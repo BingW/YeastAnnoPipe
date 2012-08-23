@@ -1,0 +1,81 @@
+1. Let's retain only the longest ORF when there are overlaps.
+
+10 coding regions are completely contained in another coding region.
+
+8 coding regions are completely contained in another coding region on the same strand.
+CDS    Mitogen-activated protein kinase involved in osmoregulation lcl|c2004AA:9501-10796  SKUD_200407
+CDS    hypothetical protein    lcl|c2004AA:9591-10796  SKUD_200408
+CDS    hypothetical protein    lcl|c2042AA:9039-10151  SKUD_204205
+CDS    hypothetical protein    lcl|c2042AA:9594-10151  SKUD_204206
+CDS    Cell wall mannoprotein of the Srp1p/Tip1p family lcl|c1818AA:5116-5910   SKUD_181804
+CDS    hypothetical protein    lcl|c1818AA:5386-5910   SKUD_181805
+CDS    hypothetical protein    lcl|c1185AA:1832-3205   SKUD_118502
+CDS    hypothetical protein    lcl|c1185AA:2762-3205   SKUD_118503
+2 coding regions are completely contained in another coding region, but on the opposite strand.
+CDS    hypothetical protein    lcl|c1876AA:3778-4527   SKUD_187603
+CDS    hypothetical protein    lcl|c1876AA:c4197-3979  SKUD_187602
+
+It is unusual to have coding regions completely contained within other
+coding regions.  Please remove any coding regions which are incorrect.
+
+2. They seem to only like name like this "Kre9p-like protein", so let's
+just take the common name of the Scer gene and call the Skud gene
+"Gal4p-like protein" or whatever the  current annotation is. If there is
+not a common name, just use the systematic name like "Ypl248c-like
+protein".
+
+[2] We have reviewed your product names and there are still a large number
+of names which are incorrect or should be revised.  Many of your product
+names
+are not acutal names but more like descriptions of the function.  We
+prefer concise
+product names.  The descriptive information should best be moved to a
+note.
+
+For example:
+You have a large number of product names which begin with a protein name
+followed by
+a functional description.  For example: "Integral membrane protein
+required for efficency of mating"
+The product name should simply be integral membrane protein.  the
+additional information
+such as "required for efficency of mating" should be moved to a CDS note.
+This same idea should be applied to all product names with funtional
+inforamtion after the
+product name.
+
+Instead of "Member of the" product names please use the family name
+followed by protein.
+sor for example "Member of the ChAPs family of proteins" would be ChAPs
+family protein.
+
+Do not start a product name with one of three or one of two.  For
+example: One of three repressible acid phosphatases
+should simply be repressible acid phosphatase.
+
+If it begins with protein involved in reverse the order.  For example:
+Protein involved in RNA polymerase II transcription should be RNA
+polymerase II transcription protein
+
+Do not use protein of unknown function or protein of unassigned function
+to begin
+a product name.  Particularly as you usually include an actual function
+right after.
+For example: "Protein of unknown function involved in outer spore wall
+organization"
+It is not of unknown function if it is involved in outer spore wall
+organization.
+If you are unsure of this protein you could change the product name to
+hypothetical
+protein and move the rest "involved in outer spore wall organization" to
+a CDS note.
+
+Do not use terms such as homolog, paralog, ortholog, similarity to, etc.
+in your
+product names.  For example: "Protein with similarity to Kre9p" should be
+"Kre9p-like protein"
+
+3. Don't move the names to notes like they suggest. We don't really know
+for certain that the genes function in the same way in Skud, so let's just
+remove them and go with the boring names like in #2.
+

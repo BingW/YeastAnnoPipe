@@ -11,7 +11,7 @@ for row in C.execute("SELECT * FROM other2ID"):
 for row in C.execute("SELECT * FROM ID2Product"):
     ID2Product[row[0]] = row[1]
 for row in C.execute("SELECT * FROM ID2Feature"):
-    ID2gene[row[0]] = row[1] if row[1] != "" else row[2]
+    ID2gene[row[0]] = row[2] if row[2] != "" else row[1]
 
 class Contig():
     def __init__(self,identity):
@@ -64,15 +64,17 @@ class Feature():
         self.identity = identity
         self.locus_tag = "SKUD_"+contig+contig_i
         if sys_name != "":
-            self.gene = ID2gene[other2ID[sys_name]]
+            gene = ID2gene[other2ID[sys_name]]
+            self.gene = sys_name
             try:
-                self.product = ID2Product[other2ID[sys_name]].replace(",","")
+                #self.product = ID2Product[other2ID[sys_name]].replace(",","")
+                self.product = gene+"-like protein" if gene != "" else "hypothetical protein"
             except:
                 #print sys_name
                 self.product = "Unknown"
         else:
             self.gene = contig+contig_i 
-            self.product = "Unknown"
+            self.product = "hypothetical protein"
         self.left = 0
         self.left_complete = False
         self.right = 0
@@ -192,14 +194,22 @@ def write_tbl(features,write_file):
         f.write(">Feature\t"+featureID2features[featureID][0].identity+"\n")
         left_right = []
         for feature in featureID2features[featureID]:
-            if feature.locus_tag in ["SKUD_205709","SKUD_165907"]:
+            #/discard no need CDS
+            if feature.locus_tag in ["SKUD_205709","SKUD_165907",\
+                    "SKUD_200408","SKUD_204206","SKUD_181805","SKUD_118503",\
+                    "SKUD_187602"]:
+                print feature.locus_tag
                 continue
+            #/
             if "<"+str(feature.left)+"\t>"+str(feature.right) not in left_right:
+
                 f.write("<"+str(feature.left)+"\t>"+str(feature.right)+"\tgene\n")
                 f.write("\t\t\tgene\t"+feature.gene+"\n")
                 f.write("\t\t\tlocus_tag\t"+feature.locus_tag+"\n")
                 f.write("<"+str(feature.left)+"\t>"+str(feature.right)+"\tmRNA\n")
-                f.write("\t\t\ttranscript_id\t"+feature.locus_tag+"\n")
+                f.write("\t\t\tproduct\t"+feature.product+"\n")
+                f.write("\t\t\tprotein_id\tgnl|HittingerWISC|"+feature.locus_tag+"\n")
+                f.write("\t\t\ttranscript_id\tgnl|HittingerWISC|mrna."+feature.locus_tag+"\n")
 
                 if feature.left_complete == True and feature.right_complete == True:
                     f.write(str(feature.left)+"\t"+str(feature.right)+"\tCDS\n")
@@ -211,8 +221,10 @@ def write_tbl(features,write_file):
                     f.write("<"+str(feature.left)+"\t>"+str(feature.right)+"\tCDS\n")
                 else:
                     print "look @ function write_tbl!!"
+
                 f.write("\t\t\tproduct\t"+feature.product+"\n")
-                f.write("\t\t\tprotein_id\t"+feature.locus_tag+"\n")
+                f.write("\t\t\tprotein_id\tgnl|HittingerWISC|"+feature.locus_tag+"\n")
+                f.write("\t\t\ttranscript_id\tgnl|HittingerWISC|mrna."+feature.locus_tag+"\n")
                 f.write("\t\t\tnote\t"+feature.note+"\n")
                 if feature.addition:
                     f.write("\t\t\t"+feature.addition+"\n")
@@ -270,7 +282,8 @@ def rcountN(line):
             return len(line)-1-i
 
 def run_tbl2asn(sbtfile,fsafile):
-    os.system("tbl2asn -t "+sbtfile+" -p ~/Vimwork/  -a s -V vb -X C")
+    os.system("tbl2asn -t "+sbtfile+" -p ~/Vimwork/ -a s -V vb -X C")
+    #os.system("tbl2asn -t "+sbtfile+" -p ~/Vimwork/ -M n -Z discrep")
     #os.system("tbl2asn -t "+sbtfile+" -i "+fsafile+" -a s -V vb -X C")
 
 def seq_coverage(strain_name):
@@ -324,27 +337,39 @@ def seq_coverage(strain_name):
 
 def genbank_pipeline(strain_name):
     
+    #/ if N>10 split contig, if contig<200 discard
     MAX_NS = 10
     MIN_CONTIG = 200
+    #/
     coverage = seq_coverage(strain_name)
-
+    #/ name of contig
     name_base = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     name_suffix = []
     for base_1 in name_base:
         for base_2 in name_base:
             name_suffix.append(base_1+base_2) 
+    #/
 
+    #/fasta file input, should @ db/Skud_CTH/
     if strain_name == "IFO1802":
         fsa_input = "/Users/bingwang/VimWork/db/Skud_CTH/reference/"+strain_name+".fsa"
     else:
         fsa_input = "/Users/bingwang/VimWork/db/Skud_CTH/Strains/"+strain_name+".fsa"
+    #/
 
+    #/agp, fsa, cmt wirtefile
     agp_writefile = "/Users/bingwang/VimWork/"+strain_name+".agp"
     fsa_writefile = "/Users/bingwang/VimWork/"+strain_name+".fsa"
     cmt_writefile = "/Users/bingwang/VimWork/"+strain_name+".cmt"
+    #/
+
+    #write comment file
     write_cmt(coverage,strain_name,cmt_writefile)
+
+    #/contig & features initial
     contigs = []
     features = []
+    #/
 
     if check_fsa(fsa_input):
         f = open(fsa_input)
@@ -461,7 +486,7 @@ def genbank_pipeline(strain_name):
         write_tbl(features,tbl_writefile)
 
     path = "/Users/bingwang/VimWork/"
-    sbtfile = "/Users/bingwang/VimWork/db/Skud_CTH/HittingerEtAlNature2010.sbt"
+    sbtfile = "/Users/bingwang/VimWork/db/Skud_CTH/template_v2.sbt"
     run_tbl2asn(sbtfile,fsa_writefile)
     f = open("/Users/bingwang/VimWork/errorsummary.val")
     for line in f:

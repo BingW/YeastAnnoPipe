@@ -2,6 +2,8 @@
 *.swp
 temp/*
 AUGUTUS/*
+Modify/*
+Origin/*
 
 # Packages
 *.egg
